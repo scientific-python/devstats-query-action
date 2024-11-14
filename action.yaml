@@ -1,0 +1,48 @@
+name: "Download developer statistics"
+description: "Gather statistics from GitHub, and bundle as compressed JSON."
+
+inputs:
+  repo:
+    description: "The GitHub repo to query for devstats; format: username/reponame"
+    required: true
+  token:
+    description: "A Github Personal Access Token with `public_repo` permission"
+    required: true
+  artifact-name:
+    description: "Name given to the uploaded artifact"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install devstats
+      env:
+        DEVSTATS_SHA: 5978e8d87d76851944c80d52c7fc646ca804ac18
+      shell: bash
+      run: |
+        pip install git+https://github.com/scientific-python/devstats.git@${DEVSTATS_SHA}
+    - name: Download data
+      env:
+        GRAPH_API_KEY: ${{ inputs.token }}
+        REPO: ${{ inputs.repo }}
+      shell: bash
+      run: |
+        OWNER_REPO=($(echo $REPO | tr "/" " "))
+        devstats ${OWNER_REPO[1]} ${OWNER_REPO[2]} >> $GITHUB_STEP_SUMMARY
+    - name: Bundle data
+      env:
+        REPO: ${{ inputs.repo }}
+      shell: bash
+      run: |
+        OWNER_REPO=($(echo $REPO | tr "/" " "))
+        FILENAME="$(date +"%Y-%m-%d")-devstats-${OWNER_REPO[2]}.xz"
+        tar cfJ $FILENAME *_issues.json *_PRs.json
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: "*.xz"
