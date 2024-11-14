@@ -32,7 +32,7 @@ runs:
       shell: bash
       run: |
         OWNER_REPO=($(echo $REPO | tr "/" " "))
-        devstats ${OWNER_REPO[0]} ${OWNER_REPO[1]} >> $GITHUB_STEP_SUMMARY
+        devstats query ${OWNER_REPO[0]} ${OWNER_REPO[1]} >> $GITHUB_STEP_SUMMARY
     - name: Bundle data
       env:
         REPO: ${{ inputs.repo }}
