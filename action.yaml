@@ -31,7 +31,7 @@ runs:
         GRAPH_API_KEY: ${{ inputs.token }}
         REPOS: ${{ inputs.repos }}
       shell: bash
-      run: |
+      run: >-
         echo $REPOS
         for REPO in $REPOS; do
           OWNER_REPO=($(echo $REPO | tr "/" " "))
@@ -41,7 +41,7 @@ runs:
       env:
         REPOS: ${{ fromJSON(inputs.repos) }}
       shell: bash
-      run: |
+      run: >-
         for REPO in $REPOS; do
           OWNER_REPO=($(echo $REPO | tr "/" " "))
           FILENAME="$(date +"%Y-%m-%d")-devstats-${OWNER_REPO[1]}.xz"
