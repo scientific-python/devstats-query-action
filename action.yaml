@@ -3,8 +3,7 @@ description: "Query developer statistics from GitHub, and upload compressed JSON
 
 inputs:
   repos:
-    description: "The GitHub repositories to query for devstats; a
-  string of format: '[username/reponame1, username/reponame2]'"
+    description: "The GitHub repositories to query for devstats; a string of format: '[username/reponame1, username/reponame2]'"
     required: true
   token:
     description: "A Github Personal Access Token with `public_repo` permission"
@@ -28,27 +27,23 @@ runs:
         pip install git+https://github.com/scientific-python/devstats.git@${DEVSTATS_SHA}
     - name: Download data
       env:
-        GRAPH_API_KEY: ${{ inputs.token }}
         REPOS: ${{ inputs.repos }}
+        GRAPH_API_KEY: ${{ inputs.token }}
       shell: bash
-      run: >-
-        echo $REPOS
-        for REPO in $REPOS; do
-          OWNER_REPO=($(echo $REPO | tr "/" " "))
-          devstats query ${OWNER_REPO[0]} ${OWNER_REPO[1]} >> $GITHUB_STEP_SUMMARY
-        fi
-    - name: Bundle data
-      env:
-        REPOS: ${{ fromJSON(inputs.repos) }}
-      shell: bash
-      run: >-
-        for REPO in $REPOS; do
-          OWNER_REPO=($(echo $REPO | tr "/" " "))
-          FILENAME="$(date +"%Y-%m-%d")-devstats-${OWNER_REPO[1]}.xz"
-          cd devstats-data
-          echo "\nCreating archive $FILE..." >> $GITHUB_STEP_SUMMARY
-          tar cfJ $FILENAME *_issues.json *_PRs.json
-        fi
+      run: |
+        REPO_JSON=$(echo $REPOS | jq -c '.[] | [split("/")] | {org: .[1], repo: .[2]}')
+
+        for ORG_REPO in ${{ env.REPO_JSON }}; do
+          ORG=$(echo $ORG_REPO | jq -r ".org")
+          REPO=$(echo $ORG_REPO | jq -r ".repo")
+          FILENAME="$(date +"%Y-%m-%d")-devstats-$ORG.xz"
+
+          echo "Querying $ORG/$REPO..." >> $GITHUB_STEP_SUMMARY
+          devstats query $ORG $REPO >> $GITHUB_STEP_SUMMARY
+
+          echo "\nCreating archive $FILENAME..." >> $GITHUB_STEP_SUMMARY
+          (cd devstats-data; tar cfJ $FILENAME *_issues.json *_PRs.json)
+        done
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
