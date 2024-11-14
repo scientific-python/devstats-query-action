@@ -40,9 +40,10 @@ runs:
       run: |
         OWNER_REPO=($(echo $REPO | tr "/" " "))
         FILENAME="$(date +"%Y-%m-%d")-devstats-${OWNER_REPO[1]}.xz"
+        cd devstats-data
         tar cfJ $FILENAME *_issues.json *_PRs.json
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.artifact-name }}
-        path: "*.xz"
+        path: "devstats-data/*.xz"
