@@ -1,15 +1,16 @@
-name: "Download developer statistics"
-description: "Gather statistics from GitHub, and bundle as compressed JSON."
+name: "Query developer statistics"
+description: "Query developer statistics from GitHub, and upload compressed JSON bundle as an artifact."
 
 inputs:
-  repo:
-    description: "The GitHub repo to query for devstats; format: username/reponame"
+  repos:
+    description: "The GitHub repositories to query for devstats; a
+  string of format: '[username/reponame1, username/reponame2]'"
     required: true
   token:
     description: "A Github Personal Access Token with `public_repo` permission"
     required: true
   artifact-name:
-    description: "Name given to the uploaded artifact"
+    description: "Name given to the uploaded artifact (zip file of all devstats bundles)"
     required: true
 
 runs:
@@ -28,20 +29,26 @@ runs:
     - name: Download data
       env:
         GRAPH_API_KEY: ${{ inputs.token }}
-        REPO: ${{ inputs.repo }}
+        REPOS: ${{ inputs.repos }}
       shell: bash
       run: |
-        OWNER_REPO=($(echo $REPO | tr "/" " "))
-        devstats query ${OWNER_REPO[0]} ${OWNER_REPO[1]} >> $GITHUB_STEP_SUMMARY
+        echo $REPOS
+        for REPO in $REPOS; do
+          OWNER_REPO=($(echo $REPO | tr "/" " "))
+          devstats query ${OWNER_REPO[0]} ${OWNER_REPO[1]} >> $GITHUB_STEP_SUMMARY
+        fi
     - name: Bundle data
       env:
-        REPO: ${{ inputs.repo }}
+        REPOS: ${{ fromJSON(inputs.repos) }}
       shell: bash
       run: |
-        OWNER_REPO=($(echo $REPO | tr "/" " "))
-        FILENAME="$(date +"%Y-%m-%d")-devstats-${OWNER_REPO[1]}.xz"
-        cd devstats-data
-        tar cfJ $FILENAME *_issues.json *_PRs.json
+        for REPO in $REPOS; do
+          OWNER_REPO=($(echo $REPO | tr "/" " "))
+          FILENAME="$(date +"%Y-%m-%d")-devstats-${OWNER_REPO[1]}.xz"
+          cd devstats-data
+          echo "\nCreating archive $FILE..." >> $GITHUB_STEP_SUMMARY
+          tar cfJ $FILENAME *_issues.json *_PRs.json
+        fi
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
