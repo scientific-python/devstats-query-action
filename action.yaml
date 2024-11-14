@@ -19,7 +19,6 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version: "3.12"
-        cache: "pip"
     - name: Install devstats
       env:
         DEVSTATS_SHA: 5978e8d87d76851944c80d52c7fc646ca804ac18
