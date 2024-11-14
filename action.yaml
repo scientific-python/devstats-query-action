@@ -19,6 +19,7 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version: "3.12"
+        cache: "pip"
     - name: Install devstats
       env:
         DEVSTATS_SHA: 5978e8d87d76851944c80d52c7fc646ca804ac18
@@ -32,18 +33,14 @@ runs:
       shell: bash
       run: |
         OWNER_REPO=($(echo $REPO | tr "/" " "))
-        echo $OWNER_REPO
-        echo ${OWNER_REPO[0]}
-        echo ${OWNER_REPO[1]}
-        echo ${OWNER_REPO[2]}
-        devstats ${OWNER_REPO[1]} ${OWNER_REPO[2]} >> $GITHUB_STEP_SUMMARY
+        devstats ${OWNER_REPO[0]} ${OWNER_REPO[1]} >> $GITHUB_STEP_SUMMARY
     - name: Bundle data
       env:
         REPO: ${{ inputs.repo }}
       shell: bash
       run: |
         OWNER_REPO=($(echo $REPO | tr "/" " "))
-        FILENAME="$(date +"%Y-%m-%d")-devstats-${OWNER_REPO[2]}.xz"
+        FILENAME="$(date +"%Y-%m-%d")-devstats-${OWNER_REPO[1]}.xz"
         tar cfJ $FILENAME *_issues.json *_PRs.json
     - name: Upload artifact
       uses: actions/upload-artifact@v4
