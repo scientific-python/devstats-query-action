@@ -7,12 +7,12 @@ inputs:
       The GitHub repositories to query for devstats; a string
       containing a YAML list, e.g. '[username/reponame1, username/reponame2]'
     required: true
-  token:
-    description: "A Github Personal Access Token with `public_repo` permission"
-    required: true
   artifact-name:
     description: "Name given to the uploaded artifact (zip file of all devstats bundles)"
     required: true
+  token:
+    description: "A Github Personal Access Token with `public_repo` permission"
+    default: ${{ github.token }}
 
 runs:
   using: "composite"

@@ -23,8 +23,9 @@ jobs:
           repos: |
             - yourname/reponame
             - yourname/reponame-2
-          token: ${{ secrets.GITHUB_TOKEN }}
           artifact-name: devstats-yourname
 ```
 
 The above would produce an artifact named `devstats-yourname.zip`, containing (with today's date) `2024-11-14-devstats-reponame.xz` and `2024-11-14-devstats-reponame-2.xz`.
+
+By default, we use the GitHub-provisioned token, but you can also set one by specifying `token`.
