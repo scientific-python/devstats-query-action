@@ -33,7 +33,7 @@ runs:
         GRAPH_API_KEY: ${{ inputs.token }}
       shell: bash
       run: |
-        REPOS_JSON = $(echo $REPOS | python -c "import yaml, json, sys; print(json.dumps(yaml.load(sys.stdin, Loader=yaml.SafeLoader)))"
+        REPOS_JSON=$(echo $REPOS | python -c "import yaml, json, sys; print(json.dumps(yaml.load(sys.stdin, Loader=yaml.SafeLoader)))")
         REPOS_JSON_SPLIT=$(echo $REPOS | jq -c '.[] | [split("/")] | {org: .[1], repo: .[2]}')
 
         for ORG_REPO in $REPOS_JSON_SPLIT; do
