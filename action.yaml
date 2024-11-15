@@ -41,10 +41,10 @@ runs:
           REPO=$(echo $ORG_REPO | jq -r ".repo")
           FILENAME="$(date +"%Y-%m-%d")-devstats-$REPO.xz"
 
-          echo -e "Querying $ORG/$REPO...\n" >> $GITHUB_STEP_SUMMARY
+          echo -e "Querying [$ORG/$REPO]...\n" >> $GITHUB_STEP_SUMMARY
           devstats query $ORG $REPO >> $GITHUB_STEP_SUMMARY
 
-          echo -e "\nCreating archive $FILENAME...\n" >> $GITHUB_STEP_SUMMARY
+          echo -e "\nCreating archive [$FILENAME]...\n" >> $GITHUB_STEP_SUMMARY
           (cd devstats-data; tar cfJ $FILENAME *_issues.json *_PRs.json)
         done
     - name: Upload artifact
