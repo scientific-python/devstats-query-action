@@ -39,7 +39,7 @@ runs:
         for ORG_REPO in $REPOS_JSON_SPLIT; do
           ORG=$(echo $ORG_REPO | jq -r ".org")
           REPO=$(echo $ORG_REPO | jq -r ".repo")
-          FILENAME="$(date +"%Y-%m-%d")-devstats-$REPO.xz"
+          FILENAME="$(date +"%Y-%m-%d")-devstats-$REPO.tar.xz"
 
           echo -e "Querying [$ORG/$REPO]...\n" >> $GITHUB_STEP_SUMMARY
           devstats query $ORG $REPO >> $GITHUB_STEP_SUMMARY
@@ -51,4 +51,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.artifact-name }}
-        path: "devstats-data/*.xz"
+        path: "devstats-data/*.tar.xz"
