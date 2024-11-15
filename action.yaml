@@ -33,13 +33,13 @@ runs:
         GRAPH_API_KEY: ${{ inputs.token }}
       shell: bash
       run: |
-        REPOS_JSON=$(python -c "import yaml, json, sys; print(json.dumps(yaml.safe_load(sys.argv[1].replace(r'\n', ''))))" "$REPOS")
-        REPOS_JSON_SPLIT=$(echo $REPOS | jq -c '.[] | [split("/")] | {org: .[1], repo: .[2]}')
+        REPOS_JSON=$(python -c "import yaml, json, sys; print(json.dumps(yaml.safe_load(sys.argv[1].replace(r'\\n', ''))))" "$REPOS")
+        REPOS_JSON_SPLIT=$(echo $REPOS_JSON | jq -c '.[] | split("/") | {org: .[0], repo: .[1]}')
 
         for ORG_REPO in $REPOS_JSON_SPLIT; do
           ORG=$(echo $ORG_REPO | jq -r ".org")
           REPO=$(echo $ORG_REPO | jq -r ".repo")
-          FILENAME="$(date +"%Y-%m-%d")-devstats-$ORG.xz"
+          FILENAME="$(date +"%Y-%m-%d")-devstats-$REPO.xz"
 
           echo "Querying $ORG/$REPO..." >> $GITHUB_STEP_SUMMARY
           devstats query $ORG $REPO >> $GITHUB_STEP_SUMMARY
