@@ -3,7 +3,9 @@ description: "Query developer statistics from GitHub, and upload compressed JSON
 
 inputs:
   repos:
-    description: "The GitHub repositories to query for devstats; a string of format: '[username/reponame1, username/reponame2]'"
+    description: >-
+      The GitHub repositories to query for devstats; a string
+      containing a YAML list, e.g. '[username/reponame1, username/reponame2]'
     required: true
   token:
     description: "A Github Personal Access Token with `public_repo` permission"
@@ -31,9 +33,10 @@ runs:
         GRAPH_API_KEY: ${{ inputs.token }}
       shell: bash
       run: |
-        REPO_JSON=$(echo $REPOS | jq -c '.[] | [split("/")] | {org: .[1], repo: .[2]}')
+        REPOS_JSON = $(echo $REPOS | python -c "import yaml, json, sys; print(json.dumps(yaml.load(sys.stdin, Loader=yaml.SafeLoader)))"
+        REPOS_JSON_SPLIT=$(echo $REPOS | jq -c '.[] | [split("/")] | {org: .[1], repo: .[2]}')
 
-        for ORG_REPO in ${{ env.REPO_JSON }}; do
+        for ORG_REPO in ${{ REPOS_JSON_SPLIT }}; do
           ORG=$(echo $ORG_REPO | jq -r ".org")
           REPO=$(echo $ORG_REPO | jq -r ".repo")
           FILENAME="$(date +"%Y-%m-%d")-devstats-$ORG.xz"
