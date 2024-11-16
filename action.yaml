@@ -21,12 +21,10 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version: "3.12"
-    - name: Install devstats
-      env:
-        DEVSTATS_SHA: 5978e8d87d76851944c80d52c7fc646ca804ac18
+    - name: Install devstats (main)
       shell: bash
       run: |
-        pip install git+https://github.com/scientific-python/devstats.git@${DEVSTATS_SHA}
+        pip install git+https://github.com/scientific-python/devstats.git
     - name: Download data
       env:
         REPOS: ${{ inputs.repos }}
