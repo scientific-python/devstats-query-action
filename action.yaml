@@ -13,6 +13,9 @@ inputs:
   token:
     description: "A Github Personal Access Token with `public_repo` permission"
     default: ${{ github.token }}
+  timezone:
+    description: "Timezone for bundle date"
+    default: UTC
 
 runs:
   using: "composite"
@@ -29,6 +32,7 @@ runs:
       env:
         REPOS: ${{ inputs.repos }}
         GRAPH_API_KEY: ${{ inputs.token }}
+        TZ: ${{ inputs.timezone }}
       shell: bash
       run: |
         REPOS_JSON=$(python -c "import yaml, json, sys; print(json.dumps(yaml.safe_load(sys.argv[1].replace(r'\\n', ''))))" "$REPOS")
@@ -37,7 +41,7 @@ runs:
         for ORG_REPO in $REPOS_JSON_SPLIT; do
           ORG=$(echo $ORG_REPO | jq -r ".org")
           REPO=$(echo $ORG_REPO | jq -r ".repo")
-          FILENAME="$(date +"%Y-%m-%d")-devstats-$REPO.tar.xz"
+          FILENAME="$(TZ=$TZ date +"%Y-%m-%d")-devstats-$REPO.tar.xz"
 
           echo -e "Querying [$ORG/$REPO]...\n" >> $GITHUB_STEP_SUMMARY
           devstats query $ORG $REPO >> $GITHUB_STEP_SUMMARY
