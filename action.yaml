@@ -27,7 +27,7 @@ runs:
     - name: Install devstats (main)
       shell: bash
       run: |
-        pip install git+https://github.com/scientific-python/devstats.git
+        pip install git+https://github.com/scientific-python/devstats.git pyyaml
     - name: Download data
       env:
         REPOS: ${{ inputs.repos }}
